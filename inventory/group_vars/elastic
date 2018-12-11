@@ -1,0 +1,10 @@
+---
+
+elasticsearch_cluster_name: es_cluster
+elasticsearch_version: "6.5.0"
+elasticsearch_storage: first
+elasticsearch_discovery_group: elastic-logs
+elasticsearch_jvm_mem: 4g
+
+
+# vim:ft=yaml

@@ -1,0 +1,6 @@
+---
+kafka_default_partition: 1
+kafka_default_retention_hour: 4
+kafka_default_retention_bytes: 1610612736
+
+java_library_path: "/usr/java/jdk1.8.0_131/jre/lib/amd64/server/"

@@ -1,0 +1,26 @@
+---
+
+- name: install logstash
+  hosts: logstash
+  become: yes
+  gather_facts: yes
+
+  roles:
+    - role: logstash
+
+  post_tasks:
+  tasks:
+    - name: ensure logstash config is deployed
+      become: yes
+      template:
+        src: "{{item}}.j2"
+        dest: "/etc/logstash/conf.d/{{item}}"
+        owner: root
+        group: root
+        mode: 0644
+        validate: 'logstash -t -f %s'
+      with_items:
+        - logstash.conf
+      notify: restart logstash
+
+

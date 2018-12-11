@@ -1,0 +1,46 @@
+cluster.name: {{elasticsearch_cluster_name}}
+node.name: {{fqdn}}
+#node.attr.storage_term: {{ elasticsearch_storage }}
+#node.attr.box_type: {{ elasticsearch_storage }}
+path.data: {{elasticsearch_data_dir}}
+path.logs: /var/log/elasticsearch
+node.master: {{elasticsearch_allow_master}}
+node.data: {{elasticsearch_allow_data}}
+node.ingest: {{elasticsearch_allow_ingest}}
+#bootstrap.memory_lock: true
+bootstrap.system_call_filter: false
+
+network.host: {{elasticsearch_bind_host}}
+http.cors.enabled : true
+http.cors.allow-origin : "*"
+http.cors.allow-methods : OPTIONS, HEAD, GET, POST, PUT, DELETE
+http.cors.allow-headers : X-Requested-With,X-Auth-Token,Content-Type, Content-Length
+gateway.recover_after_nodes: 1
+{%  if "elastic" in group_names %}
+discovery.zen.ping.unicast.hosts: {{ groups['elastic'] | map('extract', hostvars, 'fqdn') | list }}
+{% endif %}
+discovery.zen.minimum_master_nodes: 2
+node.max_local_storage_nodes: 1
+http.max_content_length: 300mb
+cluster.routing.allocation.node_initial_primaries_recoveries: 3
+cluster.routing.allocation.cluster_concurrent_rebalance: 3
+indices.recovery.max_bytes_per_sec: 1000mb
+
+cluster.routing.allocation.disk.threshold_enabled: true
+cluster.routing.allocation.disk.watermark.low: .85
+cluster.routing.allocation.disk.watermark.high: .95
+
+index.codec: best_compression
+
+#script.engine.groovy.inline.aggs: true
+indices.queries.cache.size: 20%
+indices.memory.index_buffer_size: 30%
+processors: {{ ansible_processor_vcpus }}
+
+thread_pool.bulk.size: {{ ansible_processor_vcpus // 2 }}
+thread_pool.bulk.queue_size: 5000
+thread_pool.search.size: {{ ansible_processor_vcpus * 3 }}
+thread_pool.search.queue_size: 20000
+
+#thread_pool.index.size: 33
+#thread_pool.index.queue_size: 200

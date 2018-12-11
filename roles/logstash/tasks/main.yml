@@ -1,0 +1,96 @@
+---
+
+#- name: ensure elasticsearch repository key is added
+#  rpm_key:
+#    key: "http://packages.elastic.co/GPG-KEY-elasticsearch"
+#    state: present
+
+- name: ensure repository is added
+  copy:
+    src: logstash.repo
+    dest: /etc/yum.repos.d/logstash.repo
+  tags: install
+
+- name: install logstash
+  yum:
+    name: "{{item}}"
+    state: present
+  with_items:
+    - logstash
+  tags: install
+
+- name: ensure jvm.options is added
+  copy:
+    src: jvm.options
+    dest: /etc/logstash/jvm.options
+  tags: install
+
+- name: copy system default config
+  template:
+    src: default_logstash
+    dest: /etc/default/logstash
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart logstash
+  tags: install
+
+- name: ensure systemd service file is up to date
+  template:
+    src: systemd-logstash.service
+    dest: /etc/systemd/system/logstash.service
+    owner: root
+    group: root
+  register: units
+  notify:
+    - restart logstash
+  tags: install
+
+- name: reload units
+  shell: systemctl daemon-reload
+  when: units | changed
+
+- name: ensure logstash service is running and enabled
+  systemd:
+    name: logstash
+    state: started
+    enabled: yes
+
+- name: ensure logstash shortcut is deployed
+  template:
+    src: logstash
+    dest: /usr/sbin/logstash
+    owner: root
+    group: root
+    mode: 0700
+  tags: install
+
+- name: copy logrotate config
+  copy:
+    src: logstash_logrotate
+    dest: /etc/logrotate.d/logstash
+    owner: root
+    group: root
+    mode: 0644
+  tags: install
+
+- name: copy configs
+  template:
+    src: "{{item}}"
+    dest: /etc/logstash/
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart logstash
+  with_items:
+    - logstash.yml
+    - log4j2.properties
+  tags: config
+
+#- name: ensure JMX to Prometheus exporter config is up to date
+#  template:
+#    src: "jmx_exporter-logstash-server.yml.j2"
+#    dest: "{{ jmx_exporter_install_dir }}/{{ jmx_exporter_config_dir}}/config.yml"
+#    owner: root
+#    group: root
+#  notify: restart jmx_exporter

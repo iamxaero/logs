@@ -1,0 +1,11 @@
+---
+
+- name: restart elasticsearch
+  become: yes
+  service: name=elasticsearch state=restarted
+  when: no_restart is not defined
+
+- name: reload nginx
+  become: yes
+  service: name=nginx state=reloaded
+  when: no_restart is not defined

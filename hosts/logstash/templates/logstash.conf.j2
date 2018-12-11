@@ -1,0 +1,40 @@
+input {
+  kafka {
+    bootstrap_servers => "{{ kafka_join | map('regex_replace', '^(.*)$', '\\1:{0}'.format(kafka_port)) | join(',') }}"
+    topics => ["full-log"]
+    codec => "json"
+    consumer_threads => 2
+  }
+}
+{% macro elasticoutput(index) -%}
+elasticsearch {
+  index => "{{index}}"
+  hosts => [
+{%- for host in groups['es'] -%}
+"{{- hostvars[host]['fqdn'] }}"{% if not loop.last %},{% endif -%}
+{%- endfor -%}
+  ]
+}
+{%- endmacro -%}
+
+
+output {
+{% block elasticoutput %}
+     {{elasticoutput("rt-log-%{+YYYY.MM.dd.HH}") | indent(4)}}
+{% endblock %}
+}
+
+
+{# wait more logs
+output {
+{% block elasticoutput %}
+    if "rt-log" in [type] or "default-log" in [type] {
+      {{elasticoutput("rt-log-%{+YYYY.MM.dd.HH}") | indent(4)}}
+    } else if "nop-opstack" in [type] {
+      {{elasticoutput("nop-opstack-%{+YYYY.MM}") | indent(6)}}
+    } else {
+     {{elasticoutput("rt-log-%{+YYYY.MM.dd.HH}") | indent(4)}}
+  }
+{% endblock %}
+}
+#}

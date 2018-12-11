@@ -1,0 +1,40 @@
+---
+
+actions:
+  1:
+    action: delete_indices
+    description: "Remove old indices for log"
+    options:
+      continue_if_exception: true
+      disable_action: false
+      ignore_empty_list: true
+    filters:
+      - filtertype: pattern
+        kind: prefix
+        value: "log"
+        exclude: False
+      - filtertype: age
+        source: name
+        direction: older
+        timestring: "%Y.%m.%d"
+        unit: days
+        unit_count: 4
+  2:
+    action: delete_indices
+    description: "Remove old indices for others(exemple log)"
+    options:
+      continue_if_exception: true
+      disable_action: false
+      ignore_empty_list: true
+    filters:
+      - filtertype: pattern
+        kind: prefix
+        value: "log"
+        exclude: True
+      - filtertype: age
+        source: name
+        direction: older
+        timestring: "%Y.%m.%d"
+        unit: days
+        unit_count: 1
+

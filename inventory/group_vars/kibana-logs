@@ -1,0 +1,11 @@
+---
+
+kibana_profiles:
+  - name: "kibana"
+    port: 5601
+    index: ".kibana6"
+    elasticsearch: "http://service.name:9200"
+  - name: "kibana-cdr"
+    port: 5602
+    index: ".kibana-cdr"
+    elasticsearch: "http://service.name:9200"

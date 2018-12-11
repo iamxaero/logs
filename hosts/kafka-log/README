@@ -1,0 +1,16 @@
+# it's info about topic for logs
+kafka-topics  --create --zookeeper zookeeper1.host.name:2181/kafka-bus --replication-factor 3 --partitions 1 --topic full-log
+#check topic
+kafka-topics  --list --zookeeper zookeeper2.host.name:2181/kafka-bus
+
+
+test_kafka:
+read old cmd
+kafka-console-consumer --zookeeper zookeeper1.host.name:2181/kafka-bus --topic full-log --from-beginning
+read new cmd
+kafka-console-consumer --bootstrap-server kafka1.host.name:9092 --topic full-log --from-beginning
+
+write
+kafka-console-producer --broker-list kafka1.host.name:9092 --topic full-log
+
+

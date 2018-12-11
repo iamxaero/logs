@@ -1,0 +1,7 @@
+---
+fqdn: 
+
+elasticsearch_storage: strong
+elasticsearch_heap_size: 12g
+
+# vim:ft=yaml

@@ -1,0 +1,7 @@
+[elastic:children]
+fast
+
+[fast]
+elastic2.host.name
+elastic3.host.name
+elastic1.host.name

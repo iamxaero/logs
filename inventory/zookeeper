@@ -1,0 +1,11 @@
+[zookeeper:children]
+_zookeeper
+
+[zookeeper-server:children]
+_zookeeper
+
+[_zookeeper]
+zookeeper1.host.name
+zookeeper2.host.name
+zookeeper3.host.name
+

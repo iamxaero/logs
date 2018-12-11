@@ -1,0 +1,30 @@
+---
+
+actions:
+  1:
+    action: replicas
+    description: Set the number of replicas per shard for selected
+    options:
+      count: 1
+      wait_for_completion: False
+      continue_if_exception: False
+      disable_action: False
+    filters:
+    - filtertype: pattern
+      kind: prefix
+      value: "log-"
+      exclude: False
+    - filtertype: age
+      source: name
+      direction: older
+      timestring: '%Y.%m.%d.%H'
+      unit: hours
+      unit_count: 8
+      exclude: False
+    - filtertype: age
+      source: name
+      direction: younger
+      timestring: '%Y.%m.%d'
+      unit: days
+      unit_count: 1
+      exclude: False

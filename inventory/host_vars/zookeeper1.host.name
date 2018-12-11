@@ -1,0 +1,7 @@
+---
+
+fqdn: p103i07zookeeper01.unix.local
+
+zookeeper_id: 1
+
+# vim:ft=yaml

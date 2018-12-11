@@ -1,0 +1,137 @@
+hostPort: localhost:{{ kafka_jmx_port }}
+lowercaseOutputName: true
+rules:
+  # Broker status
+  - pattern: kafka.server<type=KafkaServer, name=BrokerState><>Value
+    name: kafka_server_brokerstate
+  # Partition status
+  - pattern: kafka.cluster<type=Partition, name=([^,]+), topic=([^,]+), partition=([^,]+)><>Value
+    name: kafka_cluster_partition_$1
+    labels:
+      topic: $2
+      partition: $3
+  # Controller role placement
+  - pattern: kafka.controller<type=KafkaController, name=([^,]+)><>Value
+    name: kafka_controller_$1
+  # Partition log
+  - pattern: kafka.log<type=Log, name=([^,]+), topic=([^,]+), partition=([^,]+)><>Value
+    name: kafka_log_$1
+    labels:
+      topic: $2
+      partition: $3
+  # Log flush
+  - pattern: kafka.log<type=LogFlushStats, name=LogFlushRateAndTimeMs><>(Count|Min|Max|Mean)
+    name: kafka_log_flush_time_milliseconds
+    labels:
+      aggregate: $1
+  # Broker request/response queue
+  - pattern: kafka.network<type=RequestChannel, name=(\w+)QueueSize><>Value
+    name: kafka_network_request_channel_queue_size
+    labels:
+      queue: $1
+  # API
+  ## Request Count
+  - pattern: kafka.network<type=RequestMetrics, name=RequestsPerSec, request=([^,]+)><>Count
+    name: kafka_network_request_count
+    labels:
+      request: $1
+  ## Duration
+  - pattern: kafka.network<type=RequestMetrics, name=(\w+)TimeMs, request=([^,]+)><>(Count|Min|Max|Mean)
+    name: kafka_network_request_duration_milliseconds
+    labels:
+      scope: $1
+      request: $2
+      aggregate: $3
+  # Topic IO
+  ## Accross all topics
+  - pattern: kafka.server<type=BrokerTopicMetrics, name=([^,]+)><>Count
+    name: kafka_server_broker_topic_$1_count
+  ## For each topics
+  - pattern: kafka.server<type=BrokerTopicMetrics, name=([^,]+), topic=([^,]+)><>Count
+    name: kafka_server_broker_topic_$1_count
+    labels:
+      topic: $2
+  # Delayed fetch
+  - pattern: kafka.server<type=DelayedFetchMetrics, name=ExpiresPerSec, fetcherType=([^,]+)><>Count
+    name: kafka_server_delayed_fetch_expires_per_sec_count
+    labels:
+      fetcher_type: $1
+  # Delayed operations
+  - pattern: kafka.server<type=DelayedOperationPurgatory, name=([^,]+), delayedOperation=([^,]+)><>Value
+    name: kafka_server_delayed_operation_purgatory_$1
+    labels:
+      operation: $2
+  # Fetcher lag
+  - pattern: kafka.server<type=FetcherLagMetrics, name=([^,]+), clientId=([^,]+), topic=([^,]+), partition=([^,]+)><>Value
+    name: kafka_server_fetcher_lag_$1
+    labels:
+      client_id: $2
+      topic: $3
+      partition: $4
+  # Replication
+  - pattern: kafka.server<type=ReplicaManager, name=([^,]+)><>Value
+    name: kafka_server_replication_$1
+  - pattern: kafka.server<type=ReplicaManager, name=([^,]+)><>Count
+    name: kafka_server_replication_$1_count
+  # Replication Fetcher
+  - pattern: kafka.consumer<type=FetchRequestAndResponseMetrics, name=FetchRequestRateAndTimeMs, clientId=ReplicaFetcherThread-([0-9]+)-([0-9]+)><>(Count|Min|Max|Mean)
+    name: kafka_consumer_replication_fetch_duration_milliseconds
+    labels:
+      client_thread_id: $1
+      source_broker_id: $2
+      aggregate: $3
+  - pattern: kafka.consumer<type=FetchRequestAndResponseMetrics, name=FetchResponseSize, clientId=ReplicaFetcherThread-([0-9]+)-([0-9]+)><>(Count|Min|Max|Mean)
+    name: kafka_consumer_replication_fetch_response_size
+    labels:
+      client_thread_id: $1
+      source_broker_id: $2
+      aggregate: $3
+  # JVM GC
+  - pattern: 'java.lang<type=GarbageCollector, name=(.*)><>CollectionCount'
+    name: jvm_gc_count
+    labels:
+      name: $1
+  - pattern: 'java.lang<type=GarbageCollector, name=(.*)><>CollectionTime'
+    name: jvm_gc_time
+    labels:
+      name: $1
+  - pattern: 'java.lang<type=GarbageCollector, name=(.*), key=(.*)><LastGcInfo, memoryUsage(\w+)Gc>(\w+)'
+    name: jvm_last_gc_memory_usage
+    labels:
+      name: $1
+      space: $2
+      timing: $3
+      type: $4
+  - pattern: 'java.lang<type=GarbageCollector, name=(.*)><LastGcInfo>(\w+)'
+    name: jvm_last_gc_info_$2
+    labels:
+      name: $1
+    attrNameSnakeCase: true
+  # JVM Memory
+  - pattern: java.lang<type=Memory><HeapMemoryUsage>(\w*)
+    name: jvm_heap_usage
+    labels:
+      type: $1
+  - pattern: java.lang<type=Memory><NonHeapMemoryUsage>(\w*)
+    name: jvm_non_heap_usage
+    labels:
+      type: $1
+  - pattern: 'java.lang<type=MemoryPool, name=(.*)><CollectionUsage>(\w*)'
+    name: jvm_memory_pool_collection_usage
+    labels:
+      name: $1
+      type: $2
+  - pattern: 'java.lang<type=MemoryPool, name=(.*)><Usage>(\w*)'
+    name: jvm_memory_pool_usage
+    labels:
+      name: $1
+      type: $2
+  - pattern: 'java.lang<type=MemoryPool, name=(.*)><PeakUsage>(\w*)'
+    name: jvm_memory_pool_peak_usage
+    labels:
+      name: $1
+      type: $2
+  # JVM Thread
+  - pattern: java.lang<type=Threading><>(\w*thread_count)
+    name: jvm_$1
+    attrNameSnakeCase: true

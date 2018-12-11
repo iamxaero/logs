@@ -1,0 +1,49 @@
+actions:
+  1:
+    action: forcemerge
+    description: "Merge general indices"
+    options:
+      max_num_segments: 1
+      delay: 5
+      timeout_override:
+      continue_if_exception: False
+      disable_action: False
+    filters:
+    - filtertype: pattern
+      kind: prefix
+      value: "log-"
+      exclude: true
+    - filtertype: age
+      source: name
+      direction: older
+      timestring: '%Y.%m.%d'
+      unit: days
+      unit_count: 1
+      field:
+      stats_result:
+      epoch:
+      exclude: False
+  2:
+    action: forcemerge
+    description: "Merge log"
+    options:
+      max_num_segments: 1
+      delay: 1
+      timeout_override:
+      continue_if_exception: False
+      disable_action: False
+    filters:
+    - filtertype: pattern
+      kind: prefix
+      value: "log-"
+      exclude: false
+    - filtertype: age
+      source: name
+      direction: older
+      timestring: '%Y.%m.%d.%H'
+      unit: hours
+      unit_count: 1
+      field:
+      stats_result:
+      epoch:
+      exclude: False

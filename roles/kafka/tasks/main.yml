@@ -1,0 +1,43 @@
+---
+- name: Add repo for kafka
+  get_url:
+    url: "{{ item }}"
+    dest: /etc/yum.repos.d/
+    mode: 644
+  with_items:
+    - http://www-eu.apache.org/dist/bigtop/bigtop-1.2.1/repos/centos7/bigtop.repo
+    - http://archive.cloudera.com/kafka/redhat/7/x86_64/kafka/cloudera-kafka.repo
+
+- name: install key for repo
+  rpm_key:
+    state: present
+    key: http://archive.cloudera.com/kafka/redhat/7/x86_64/kafka/RPM-GPG-KEY-cloudera
+
+- name: install packages
+  become: yes
+  yum: 
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - java-1.8.0-openjdk-headless
+    - kafka
+    - kafka-server
+
+- name: ensure kafka config is up to date
+  become: yes
+  template:
+    src: kafka-properties.j2
+    dest: "{{ kafka_install_dir }}/conf/server.properties"
+  notify: restart kafka-server
+  tags: kafka-properties
+
+- name: ensure kafka sysconfig is up to date
+  become: yes
+  template:
+    src: kafka-sysconfig.j2
+    dest: /etc/sysconfig/kafka
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart kafka-server
+

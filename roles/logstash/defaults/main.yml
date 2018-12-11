@@ -1,0 +1,4 @@
+---
+logstash_jmx_port: 9999
+jmx_run_user: "logstash"
+

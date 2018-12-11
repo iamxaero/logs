@@ -1,0 +1,23 @@
+---
+
+elasticsearch_cluster_name: "elasticsearch"
+
+elasticsearch_allow_master: "true"
+elasticsearch_allow_data:   "true"
+elasticsearch_allow_ingest: "true"
+
+elasticsearch_home_dir:   "/usr/share/elasticsearch"
+elasticsearch_root_dir:   "/var/lib/elasticsearch"
+elasticsearch_conf_dir:   "/etc/elasticsearch"
+elasticsearch_cert_dir:   "{{elasticsearch_conf_dir}}/ssl"
+elasticsearch_data_dir:   "{{elasticsearch_root_dir}}/data"
+elasticsearch_log_dir:    "{{elasticsearch_root_dir}}/log"
+elasticsearch_work_dir:   "{{elasticsearch_root_dir}}/work"
+elasticsearch_plugin_dir: "{{elasticsearch_root_dir}}/plugin"
+
+elasticsearch_bind_host:  "0.0.0.0"
+
+elasticsearch_plugins: []
+
+elasticsearch_curator_version: "5.6.0"
+elasticsearch_version: "6.5.0"

@@ -1,0 +1,24 @@
+---
+
+- name: restart kibana
+  become: yes
+  systemd:
+     name: kibana
+     daemon_reload: yes
+     state: restarted
+     enabled: yes
+  when: no_restart is not defined
+
+- name: reload nginx
+  become: yes
+  service:
+    name: nginx
+    state: reloaded
+  when: no_restart is not defined
+
+- name: restart nginx
+  become: yes
+  service:
+    name: nginx
+    state: restarted
+  when: no_restart is not defined

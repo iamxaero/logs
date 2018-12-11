@@ -1,0 +1,12 @@
+---
+
+- name: install kibana
+  hosts: kibana
+  become: yes
+  gather_facts: yes
+
+  roles:
+    - role: kibana
+#    - role: nginx
+
+

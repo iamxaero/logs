@@ -1,0 +1,5 @@
+# Kafka sysconfig
+KAFKA_HEAP_OPTS="-Xmx{{ kafka_heap_size | default(1)}}G -Xms{{ kafka_heap_size | default(1) }}G"
+OPTIONS="{{ kafka_install_dir }}/config/server.properties"
+
+JMX_PORT="{{ kafka_jmx_port }}"

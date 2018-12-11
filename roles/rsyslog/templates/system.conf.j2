@@ -1,0 +1,69 @@
+input(type="imjournal")
+
+template(name="json" type="subtree" subtree="$!")
+template(name="date" type="list"){
+  property(name="timereported" dateFormat="rfc3339")
+  constant(value="\n")                                  #we'll separate logs with a newline
+}
+
+set $!timestamp = exec_template("date");
+set $!cls_facility = $syslogfacility-text;
+set $!cls_pid = $procid;
+set $!cls_priority = $pri;
+set $!cls_severity = $syslogseverity-text;
+set $!host = $fromhost;
+set $!type = "{{ es_index | default ("log") }}";
+{% if is_number is defined %}
+set $!cluster = "{{ is_number }}";
+{% endif %}
+set $!program = $programname;
+#set $!cls_message_type = "system";                     # This is template for system logs^ revet when create openstak template
+
+main_queue(
+  queue.workerthreads="4"                               # threads to work on the queue
+  queue.dequeueBatchSize="1000"                         # max number of messages to process at once
+  queue.size="10000"                                    # max queue size
+)
+
+action(
+  name="parse_system"
+  type="mmjsonparse"
+  cookie=""
+)
+
+unset $!PRIORITY;
+unset $!_TRANSPORT;
+unset $!_PID;
+unset $!_UID;
+unset $!_GID;
+unset $!_COMM;
+unset $!_EXE;
+unset $!_CMDLINE;
+unset $!_CAP_EFFECTIVE;
+unset $!_SYSTEMD_CGROUP;
+unset $!_BOOT_ID;
+unset $!_MACHINE_ID;
+unset $!_HOSTNAME;
+unset $!CONTAINER_ID;
+unset $!CONTAINER_ID_FULL;
+unset $!CONTAINER_NAME;
+unset $!CONTAINER_TAG;
+unset $!MESSAGE;
+unset $!_SOURCE_REALTIME_TIMESTAMP;
+# test
+unset $!_SYSTEMD_SLICE;
+unser $!_SELINUX_CONTEXT;
+unset $!_SOURCE_MONOTONIC_TIMESTAMP;
+unset $!SYSLOG_FACILITY;
+unset $!SYSLOG_IDENTIFIER;
+
+action(
+  name="dispatch_system"
+  broker=["p103i07kafka01.unix.local:9092","p103i07kafka02.unix.local:9092","p103i07kafka03.unix.local:9092"]
+  type="omkafka"
+  topic="full-log"
+  partitions.auto="on"
+  confParam=["socket.keepalive.enable=true",
+             "queue.buffering.max.messages=2000000"]
+  template="json"
+)

@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+set -o allexport
+source /etc/default/logstash
+set +o allexport
+
+export LS_LOG_OUTPUT="console"
+export LS_JAVA_OPTS=""
+exec /usr/share/logstash/bin/logstash --path.settings /etc/logstash $@

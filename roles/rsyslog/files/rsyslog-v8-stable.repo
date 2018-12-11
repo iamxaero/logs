@@ -1,0 +1,6 @@
+[rsyslog-v8-stable]
+name=rsyslog-v8-stable
+baseurl=http://rpms.adiscon.com/v8-stable/rsyslog.repo
+enabled=1
+priority=99
+gpgcheck=0

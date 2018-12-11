@@ -1,0 +1,59 @@
+hostPort: localhost:{{ logstash_jmx_port }}
+lowercaseOutputName: true
+rules:
+  # Kafka Consumer
+  - pattern: 'kafka.consumer<type=consumer-fetch-manager-metrics, client-id=(.*), topic=(.*)><>(.*): (.*)'
+    name: kafka_consumer_fetch_manager_$3
+    value: $4
+    labels:
+      client_id: $1
+      topic: $2
+  # JVM GC
+  - pattern: 'java.lang<type=GarbageCollector, name=(.*)><>CollectionCount'
+    name: jvm_gc_count
+    labels:
+      name: $1
+  - pattern: 'java.lang<type=GarbageCollector, name=(.*)><>CollectionTime'
+    name: jvm_gc_time
+    labels:
+      name: $1
+  - pattern: 'java.lang<type=GarbageCollector, name=(.*), key=(.*)><LastGcInfo, memoryUsage(\w+)Gc>(\w+)'
+    name: jvm_last_gc_memory_usage
+    labels:
+      name: $1
+      space: $2
+      timing: $3
+      type: $4
+  - pattern: 'java.lang<type=GarbageCollector, name=(.*)><LastGcInfo>(\w+)'
+    name: jvm_last_gc_info_$2
+    labels:
+      name: $1
+    attrNameSnakeCase: true
+  # JVM Memory
+  - pattern: java.lang<type=Memory><HeapMemoryUsage>(\w*)
+    name: jvm_heap_usage
+    labels:
+      type: $1
+  - pattern: java.lang<type=Memory><NonHeapMemoryUsage>(\w*)
+    name: jvm_non_heap_usage
+    labels:
+      type: $1
+  - pattern: 'java.lang<type=MemoryPool, name=(.*)><CollectionUsage>(\w*)'
+    name: jvm_memory_pool_collection_usage
+    labels:
+      name: $1
+      type: $2
+  - pattern: 'java.lang<type=MemoryPool, name=(.*)><Usage>(\w*)'
+    name: jvm_memory_pool_usage
+    labels:
+      name: $1
+      type: $2
+  - pattern: 'java.lang<type=MemoryPool, name=(.*)><PeakUsage>(\w*)'
+    name: jvm_memory_pool_peak_usage
+    labels:
+      name: $1
+      type: $2
+  # JVM Thread
+  - pattern: java.lang<type=Threading><>(\w*thread_count)
+    name: jvm_$1
+    attrNameSnakeCase: true

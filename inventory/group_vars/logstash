@@ -1,0 +1,6 @@
+---
+kafka_join: "{{groups['kafka-bus']}}"
+kafka_port: 9092
+es_join: "{{groups['es-strong']}}"
+es_port: 9200
+

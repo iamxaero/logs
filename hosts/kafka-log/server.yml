@@ -1,0 +1,26 @@
+---
+- hosts: kafka
+  gather_facts: yes
+  become: yes
+  roles:
+  - role: kafka
+    zookeeper_join: "{{groups['zookeeper-server']}}"
+    zookeeper_chroot: "kafka"
+
+  tasks:
+    - name: Update default repo for kafka 3.1.0 (default kafka 1.1.0)
+      copy:
+        src: cloudera-kafka.repo
+        dest: /etc/yum.repos.d/cloudera-kafka.repo
+      tags: upgrade
+
+    - name: install packages kafka 3.1.0
+      become: yes
+      yum: 
+        name: "{{ item }}"
+        state: latest
+      with_items:
+        - kafka
+        - kafka-server
+      notify: restart kafka-server
+

@@ -1,0 +1,16 @@
+---
+- name: enable kafka-server
+  become: yes
+  service:
+    name: kafka-server
+    enabled: yes
+  notify:
+    - restart kafka-server
+
+- name: restart kafka-server
+  become: yes
+  service:
+    name: kafka-server
+    state: restarted
+    enabled: yes
+

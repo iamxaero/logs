@@ -1,0 +1,6 @@
+---
+
+fqdn:
+
+server_os: centos
+kafka_id: 1

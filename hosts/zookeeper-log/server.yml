@@ -1,0 +1,29 @@
+---
+- hosts: zookeeper-server
+  gather_facts: yes
+  become: yes
+  roles:
+    - role: zookeeper
+      zookeeper_join: "{{groups['zookeeper-server']}}"
+    - role: telegraf
+
+  tasks:
+    - name: ensure znode prerequisite is installed
+      become: yes
+      package:
+        name: python-pip
+        state: present
+      tags: kazoo
+
+    - pip:
+        name: kazoo
+        state: present
+      tags: kazoo
+
+    - name: create path for log-kafka
+      znode:
+        hosts: "localhost:2181"
+        name: /log-kafka
+        state: present
+      tags: znode-log
+

@@ -1,0 +1,23 @@
+---
+
+- name: install kibana
+  hosts: kibana
+  become: yes
+  gather_facts: yes
+
+  roles:
+    - role: kibana
+  tasks:
+    - name: ensure kibana nginx config is up to date
+      become: yes
+      copy:
+        src: "kibana_nginx.conf"
+        dest: "/etc/nginx/conf.d/kibana_nginx.conf"
+      notify: reload nginx
+
+    - name: kibana service enabled & started
+      systemd:
+        name: kibana
+        state: started
+        enabled: True
+      tags: service

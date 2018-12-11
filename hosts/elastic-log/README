@@ -1,0 +1,11 @@
+---
+curator
+---
+curator --config /etc/curator/curator-config.yml /etc/curator/delete-index.yml
+
+log
+/var/log/curator.log
+
+if nothing happens, execute:
+(https://github.com/elastic/curator/issues/1243)
+export LC_ALL=en_US.UTF-8

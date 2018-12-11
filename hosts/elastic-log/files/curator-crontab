@@ -1,0 +1,8 @@
+## close + delete indices
+50 1 * * * root  curator --config /etc/curator/curator-config.yml /etc/curator/delete-index.yml
+
+## force merge
+#1 1,5,9,13,17,21 * * * root curator --config /etc/curator/curator-config.yml /etc/curator/forceMerge-rt-log.yml
+
+## Delete autgenerated indices
+0 * * * * root curator --config /etc/curator/curator-config.yml /etc/curator/delete-autoindices.yml

@@ -1,0 +1,45 @@
+---
+
+- hosts: elastic
+  gather_facts: yes
+  become: yes
+
+  roles:
+    - role: elastic
+
+  post_tasks:
+    - name: ensure elastic search started and enabled
+      service:
+        name: elasticsearch
+        state: started
+        enabled: true
+
+    - name: create curator config dif
+      file:
+        path: /etc/curator
+        state: directory
+        owner: root
+        group: root
+      tags: cron
+
+    - name: upload curator 5.x config files
+      copy:
+        src: "files/{{ item }}"
+        dest: /etc/curator/
+        owner: root
+        group: root
+        backup: yes
+      with_items:
+        - delete-index.yml
+        - curator-config.yml
+        - replica.yml
+        - delete-autoindices.yml
+      tags: cron
+
+    - name: deploy cron
+      copy:
+        src: files/curator-crontab
+        dest: /etc/cron.d/curator
+        owner: root
+        group: root
+      tags: cron

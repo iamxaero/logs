@@ -1,0 +1,3 @@
+[logstash]
+logstash1.host.name
+logstash2.host.name

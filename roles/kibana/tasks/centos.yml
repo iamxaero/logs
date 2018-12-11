@@ -1,0 +1,49 @@
+---
+
+- name: ensure elasticsearch repository key is added
+  become: yes
+  rpm_key:
+    key: 'https://artifacts.elastic.co/GPG-KEY-elasticsearch'
+    state: present
+  tags: install
+
+- name: ensure kibana repositories are added
+  become: yes
+  copy:
+    src: kibana.repo
+    dest: /etc/yum.repos.d/kibana.repo
+    mode: 0644
+  tags: install
+
+
+- name: install packages
+  become: yes
+  package:
+    name: kibana
+    state: present
+  tags: install
+
+- name: ensure default kibana service file is deleted
+  become: yes
+  file:
+    path: /etc/systemd/system/kibana.service
+    state: absent
+  tags: install
+
+- name: ensure custom service file is deployed
+  become: yes
+  copy:
+    src: kibana.service
+    dest: /etc/systemd/system/kibana.service
+    mode: 0644
+  notify: restart kibana
+
+- name: ensure templated kibana configs are deployed
+  become: yes
+  template:
+    src: "kibana.yml.j2"
+    dest: "/etc/kibana/{{item.name}}.yml"
+    mode: 0644
+  with_items: "{{kibana_profiles}}"
+  tags: config
+  notify: restart kibana

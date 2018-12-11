@@ -1,0 +1,68 @@
+- name: add rsyslog repo
+  become: yes
+  copy:
+    src: rsyslog-v8-stable.repo
+    dest: /etc/yum.repos.d/rsyslog-v8-stable.repo
+    mode: 0644
+
+
+#  yum_repository:
+#    name: rsyslog-v8-stable
+#    description: Adiscon Rsyslog v8-stable for CentOS-$releasever-$basearch
+#    baseurl: http://rpms.adiscon.com/v8-stable/epel-$releasever/$basearch
+#    enabled: yes
+#    gpgcheck: no
+#    protect: yes
+
+- name: ensure rsyslog is installed
+  become: yes
+  yum:
+    name: "{{item}}"
+    state: installed
+    update_cache: yes
+  with_items:
+    - rsyslog-8.39.0
+    - rsyslog-kafka-8.39.0
+    - rsyslog-mmjsonparse-8.39.0
+    - rsyslog-elasticsearch-8.39.0
+
+- name: ensure rsyslog service file is uploaded
+  become: yes
+  template:
+    src: rsyslog.service
+    dest: /usr/lib/systemd/system/rsyslog.service
+  notify: reload systemd
+
+- name: ensure default rsyslog config is up to date
+  template:
+    src: rsyslog.conf
+    dest: /etc/rsyslog.conf
+  notify: restart rsyslog
+
+- name: ensure systemd rsyslog config is up to date
+  template:
+    src: listen.conf
+    dest: /etc/rsyslog.d/listen.conf
+  notify: restart rsyslog
+
+- name: ensure rsyslog config is up to date
+  template:
+    src: system.conf.j2
+    dest: /etc/rsyslog.d/system.conf
+  notify: restart rsyslog
+
+- name: Clean artifact path
+  file:
+    state: absent
+    path: "{{item}}"
+  with_items:
+    - /etc/rsyslog.d/kafka.conf
+    - /etc/rsyslog.d/60-remote.conf
+  ignore_errors: yes
+  notify: restart rsyslog
+
+- name: journald config
+  template:
+    src: journald.conf
+    dest: /etc/systemd/journald.conf
+  notify: restart systemd-journald

@@ -1,0 +1,20 @@
+[curator-3]
+name=CentOS/RHEL 7 repository for Elasticsearch Curator 3.x packages
+baseurl=http://packages.elastic.co/curator/3/centos/7
+gpgcheck=1
+gpgkey=http://packages.elastic.co/GPG-KEY-elasticsearch
+enabled=1
+
+[curator-4]
+name=CentOS/RHEL 7 repository for Elasticsearch Curator 4.x packages
+baseurl=http://packages.elastic.co/curator/4/centos/7
+gpgcheck=1
+gpgkey=http://packages.elastic.co/GPG-KEY-elasticsearch
+enabled=1
+
+[curator-5]
+name=CentOS/RHEL 7 repository for Elasticsearch Curator 5.x packages
+baseurl=http://packages.elastic.co/curator/5/centos/7
+gpgcheck=1
+gpgkey=http://packages.elastic.co/GPG-KEY-elasticsearch
+enabled=1
