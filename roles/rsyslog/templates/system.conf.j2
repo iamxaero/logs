@@ -59,7 +59,7 @@ unset $!SYSLOG_IDENTIFIER;
 
 action(
   name="dispatch_system"
-  broker=["p103i07kafka01.unix.local:9092","p103i07kafka02.unix.local:9092","p103i07kafka03.unix.local:9092"]
+  broker=["kafka01.host.name:9092","kafka2.host.name:9092","kafka3.host.name:9092"]
   type="omkafka"
   topic="full-log"
   partitions.auto="on"
